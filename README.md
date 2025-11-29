@@ -27,7 +27,7 @@ El proyecto está pensado exclusivamente para entornos controlados, laboratorios
 > Trust AI no contiene malware operativo, no se propaga, no ataca sistemas y no genera daño real.
 
 
- **💻 PAGINA WEB INFORMATIVA :**
+ **💻 PAGINA WEB INFORMATIVA : SOON**
  
 <p align="center">
   <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
@@ -133,3 +133,4 @@ No debe modificarse para causar daño real.”
 👉 **[github.com/cromop1](https://github.com/cromop1)**
 
 Tu apoyo ayuda a que pueda seguir desarrollando herramientas educativas, simulaciones seguras y contenido para la comunidad.
+
