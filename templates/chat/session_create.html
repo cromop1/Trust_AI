@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo chat · TrustAI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <header class="panel-header">
+        <div>
+            <h1>Crea un nuevo chat</h1>
+            <p>Sigue los pasos para personalizar la conversación con TrustAI.</p>
+        </div>
+    </header>
+
+    <div class="stepper">
+        <div class="step-indicator is-active" data-step="1">
+            <span>1</span>
+            <div>
+                <strong>Estilo</strong>
+                <small>Selecciona la plantilla</small>
+            </div>
+        </div>
+        <div class="step-indicator" data-step="2">
+            <span>2</span>
+            <div>
+                <strong>Modelo</strong>
+                <small>Elige el motor de TrustAI</small>
+            </div>
+        </div>
+        <div class="step-indicator" data-step="3">
+            <span>3</span>
+            <div>
+                <strong>Título</strong>
+                <small>Identifica la sesión</small>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="form" novalidate>
+        {% csrf_token %}
+        <p class="step-error" id="step-error" hidden></p>
+        <div class="step-section is-active" data-step="1">
+            <div class="style-header">
+                <div>
+                    <h2>Escoge un estilo</h2>
+                    <p class="style-subtitle">Marca tus plantillas favoritas para encontrarlas rápido en futuros chats.</p>
+                </div>
+                <div class="style-toolbar">
+                    <span class="style-toolbar-info">
+                        {% if showing_favorites %}
+                            Mostrando solo tus plantillas favoritas ({{ favorite_templates|length }})
+                        {% else %}
+                            Mostrando todas las plantillas activas ({{ form.fields.style_template.queryset|length }})
+                        {% endif %}
+                    </span>
+                    <div class="style-toolbar-actions">
+                        {% if showing_favorites %}
+                            <a href="{% url 'chat:session_create' %}" class="pill pill-ghost">Ver todas</a>
+                        {% else %}
+                            <a href="?favoritas=1" class="pill pill-highlight{% if favorite_templates|length == 0 %} is-disabled{% endif %}" {% if favorite_templates|length == 0 %}aria-disabled="true"{% endif %}>
+                                Ver favoritas ({{ favorite_templates|length }})
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="style-grid" data-showing-favorites="{{ showing_favorites|yesno:'true,false' }}">
+                {% with selected=form.style_template.value %}
+                {% for option in form.style_template.field.queryset %}
+                    <label class="style-option{% if option.pk in favorite_ids %} is-favorite{% endif %}" data-style-id="{{ option.pk }}">
+                        <input type="radio" name="{{ form.style_template.html_name }}" value="{{ option.pk }}" {% if selected|stringformat:"s" == option.pk|stringformat:"s" %}checked{% endif %} required>
+                        <div class="style-option-header">
+                            <span class="style-option-title">{{ option.title }}</span>
+                        </div>
+                        <span class="style-option-description">{{ option.description }}</span>
+                        <div class="style-option-actions">
+                            <button
+                                type="button"
+                                class="button button-favorite favorite-action{% if option.pk in favorite_ids %} is-favorite{% endif %}"
+                                data-style-id="{{ option.pk }}"
+                                data-action="{% url 'chat:toggle_favorite' option.pk %}"
+                                aria-pressed="{% if option.pk in favorite_ids %}true{% else %}false{% endif %}"
+                            >
+                                {% if option.pk in favorite_ids %}Eliminar de favoritas{% else %}Añadir a favoritas{% endif %}
+                            </button>
+                        </div>
+                    </label>
+                {% empty %}
+                    <p class="empty-state">Aún no has marcado plantillas como favoritas.</p>
+                {% endfor %}
+                {% endwith %}
+            </div>
+            {% if form.style_template.errors %}
+                <div class="form-error">{{ form.style_template.errors.0 }}</div>
+            {% endif %}
+            <button type="button" class="button button-primary step-next" data-next="2">Continuar</button>
+        </div>
+
+        <div class="step-section" data-step="2">
+            <h2>Selecciona el modelo de TrustAI</h2>
+            <div class="model-grid">
+                {% with selected=form.model_choice.value %}
+                {% for value, label in form.fields.model_choice.choices %}
+                    <label class="model-option">
+                        <input type="radio" name="{{ form.model_choice.html_name }}" value="{{ value }}" {% if selected == value %}checked{% endif %} required>
+                        <span class="model-name">{{ label }}</span>
+                        <small>{{ value }}</small>
+                    </label>
+                {% endfor %}
+                {% endwith %}
+            </div>
+            {% if form.model_choice.errors %}
+                <div class="form-error">{{ form.model_choice.errors.0 }}</div>
+            {% endif %}
+            <div class="step-actions">
+                <button type="button" class="button button-secondary step-prev" data-prev="1">Atrás</button>
+                <button type="button" class="button button-primary step-next" data-next="3">Continuar</button>
+            </div>
+        </div>
+
+        <div class="step-section" data-step="3">
+            <h2>Define un título</h2>
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">Título del chat</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="form-error">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="step-actions">
+                <button type="button" class="button button-secondary step-prev" data-prev="2">Atrás</button>
+                <button type="submit" class="button button-primary">Crear chat</button>
+            </div>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        const steps = document.querySelectorAll('.step-section');
+        const indicators = document.querySelectorAll('.step-indicator');
+        const errorBanner = document.getElementById('step-error');
+        const styleGrid = document.querySelector('.style-grid');
+        const showingFavorites = styleGrid?.dataset.showingFavorites === 'true';
+        const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
+
+        const showStep = (step) => {
+            steps.forEach(section => section.classList.toggle('is-active', section.dataset.step === step));
+            indicators.forEach(indicator => indicator.classList.toggle('is-active', indicator.dataset.step === step));
+        };
+
+        const validateStep = (currentStep) => {
+            if (currentStep === '1') {
+                const valid = Boolean(document.querySelector('input[name="{{ form.style_template.html_name }}"]:checked'));
+                if (!valid) {
+                    errorBanner.textContent = "Selecciona una plantilla de estilo para continuar.";
+                    errorBanner.hidden = false;
+                }
+                return valid;
+            }
+            if (currentStep === '2') {
+                const valid = Boolean(document.querySelector('input[name="{{ form.model_choice.html_name }}"]:checked'));
+                if (!valid) {
+                    errorBanner.textContent = "Elige un modelo de TrustAI antes de seguir.";
+                    errorBanner.hidden = false;
+                }
+                return valid;
+            }
+            return true;
+        };
+
+        document.querySelectorAll('.step-next').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const current = btn.closest('.step-section')?.dataset.step;
+                if (!validateStep(current)) {
+                    btn.blur();
+                    return;
+                }
+                errorBanner.hidden = true;
+                showStep(btn.dataset.next);
+            });
+        });
+
+        document.querySelectorAll('.step-prev').forEach(btn => {
+            btn.addEventListener('click', () => showStep(btn.dataset.prev));
+        });
+
+        document.querySelectorAll('input[name="{{ form.model_choice.html_name }}"]').forEach(input => {
+            input.addEventListener('change', () => {
+                if (!errorBanner.hidden) {
+                    errorBanner.hidden = true;
+                }
+            });
+        });
+
+        const highlightSelection = (selector) => {
+            document.querySelectorAll(selector).forEach(container => {
+                const input = container.querySelector('input[type="radio"]');
+                if (!input) return;
+                container.classList.toggle('is-selected', input.checked);
+                input.addEventListener('change', () => {
+                    document.querySelectorAll(selector).forEach(item => {
+                        item.classList.toggle('is-selected', item.querySelector('input[type="radio"]').checked);
+                    });
+                    if (!errorBanner.hidden) {
+                        errorBanner.hidden = true;
+                    }
+                });
+            });
+        };
+        highlightSelection('.style-option');
+        highlightSelection('.model-option');
+
+        const initialStyle = new URLSearchParams(window.location.search).get('style');
+        if (initialStyle) {
+            const input = document.querySelector(`input[name="{{ form.style_template.html_name }}"][value="${initialStyle}"]`);
+            if (input) {
+                input.checked = true;
+                input.dispatchEvent(new Event('change'));
+            }
+        }
+
+        document.querySelectorAll('.favorite-action').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const action = button.dataset.action;
+                const styleOption = button.closest('.style-option');
+                if (!action || !styleOption) {
+                    return;
+                }
+                button.disabled = true;
+                button.classList.add('is-processing');
+                try {
+                    const response = await fetch(action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error en la solicitud');
+                    }
+                    const data = await response.json();
+                    if (!data.success) {
+                        throw new Error('No se pudo actualizar la plantilla');
+                    }
+                    const favored = Boolean(data.favored);
+                    styleOption.classList.toggle('is-favorite', favored);
+                    button.classList.toggle('is-favorite', favored);
+                    button.setAttribute('aria-pressed', favored ? 'true' : 'false');
+                    button.textContent = favored ? 'Eliminar de favoritas' : 'Añadir a favoritas';
+                    if (showingFavorites && !favored) {
+                        styleOption.remove();
+                        if (!document.querySelector('.style-option')) {
+                            window.location.href = "{% url 'chat:session_create' %}";
+                        }
+                    }
+                } catch (error) {
+                    button.classList.add('has-error');
+                    setTimeout(() => button.classList.remove('has-error'), 1200);
+                } finally {
+                    button.disabled = false;
+                    button.classList.remove('is-processing');
+                }
+            });
+        });
+    })();
+</script>
+{% endblock %}

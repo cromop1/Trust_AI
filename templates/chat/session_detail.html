@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ chat_session.title }} · TrustAI{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js" defer></script>
+{% endblock %}
+
+{% block content %}
+<section class="panel chat-panel" data-session-id="{{ chat_session.pk }}">
+    <header class="panel-header chat-header">
+        <div>
+            <h1>{{ chat_session.title }}</h1>
+            <p>{{ chat_session.style_template.title }} · {{ chat_session.get_model_choice_display }}</p>
+        </div>
+        <div class="chat-header-actions">
+            <a href="{% url 'chat:session_list' %}" class="button button-secondary">Volver al historial</a>
+            <a href="{% url 'chat:session_delete' chat_session.pk %}" class="button button-danger">Eliminar chat</a>
+        </div>
+    </header>
+    <div class="chat-history" id="chat-history">
+        {% for message in visible_messages %}
+            <div class="chat-message chat-message-{{ message.role }}">
+                <div class="chat-avatar">
+                    {% if message.role == "user" %}
+                        <span>{{ request.user.profile_initials }}</span>
+                    {% else %}
+                        <span>AI</span>
+                    {% endif %}
+                </div>
+                <div class="chat-content">
+                    <div class="chat-meta">
+                        <span class="chat-role">
+                            {% if message.role == "user" %}{{ request.user.display_name|default:"Tú" }}{% else %}TrustAI{% endif %}
+                        </span>
+                        <span class="chat-timestamp">{{ message.created_at|date:"H:i" }}</span>
+                    </div>
+                    <div class="chat-text">{{ message.content|linebreaksbr }}</div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <p>¡Inicia la conversación! Tu mensaje configurará el contexto junto con la plantilla de estilo elegida.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <footer class="chat-composer">
+        {% if not can_chat %}
+            <div class="access-lock">
+                <p>Agrega tu API key de DeepSeek en tu perfil para continuar esta conversacion con tus propios creditos.</p>
+                <a href="{% url 'accounts:profile' %}" class="button button-secondary">Configurar API key</a>
+            </div>
+        {% endif %}
+        <form
+            id="message-form"
+            class="form"
+            autocomplete="off"
+            method="post"
+            data-endpoint="{% url 'chat:message_send' chat_session.pk %}"
+            data-user-initials="{{ request.user.profile_initials }}"
+            data-user-name="{{ request.user.display_name|default:'TA?' }}"
+            data-assistant-name="TrustAI"
+            data-locked="{% if can_chat %}false{% else %}true{% endif %}"
+        >
+            {% csrf_token %}
+            {{ message_form.content }}
+            <button type="submit" class="button button-primary" {% if not can_chat %}disabled{% endif %}>Enviar</button>
+            <button type="button" class="button button-secondary button-cancel" id="cancel-request" hidden>Cancelar</button>
+        </form>
+        <p class="chat-hint">La plantilla seleccionada se aplica de forma oculta para personalizar las respuestas.</p>
+    </footer>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/chat.js' %}"></script>
+{% endblock %}

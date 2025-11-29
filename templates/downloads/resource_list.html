@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Recursos - TrustAI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <header class="panel-header">
+        <div>
+            <h1>Recursos premium</h1>
+            <p>Descarga software, utilidades y material exclusivo disponible para tu cuenta.</p>
+        </div>
+    </header>
+    {% if resources %}
+        <div class="resource-grid">
+            {% for resource in resources %}
+                <article class="resource-card">
+                    <a href="{% url 'downloads:detail' resource.pk %}" class="resource-card__link">
+                        <div class="resource-card__media">
+                            {% if resource.image %}
+                                <img src="{{ resource.image.url }}" alt="{{ resource.title }}">
+                            {% else %}
+                                <div class="resource-card__placeholder">{{ resource.extension|default:"ZIP" }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="resource-card__body">
+                            <h2>{{ resource.title }}</h2>
+                            <p>{{ resource.description|truncatewords:25 }}</p>
+                            <span class="resource-card__cta">Ver detalles</span>
+                        </div>
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">Aun no hay recursos disponibles. Vuelve pronto.</p>
+    {% endif %}
+</section>
+{% endblock %}

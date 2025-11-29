@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar chat · TrustAI{% endblock %}
+
+{% block content %}
+<section class="panel panel-danger">
+    <header class="panel-header">
+        <div>
+            <h1>Eliminar conversación</h1>
+            <p>¿Estás seguro de que quieres borrar el chat «{{ chat_session.title }}»? Esta acción no se puede deshacer.</p>
+        </div>
+    </header>
+    <div class="panel-body">
+        <dl class="delete-summary">
+            <div>
+                <dt>Modelo usado</dt>
+                <dd>{{ chat_session.get_model_choice_display }}</dd>
+            </div>
+            <div>
+                <dt>Plantilla de estilo</dt>
+                <dd>{{ chat_session.style_template.title }}</dd>
+            </div>
+            <div>
+                <dt>Mensajes almacenados</dt>
+                <dd>{{ chat_session.total_messages }}</dd>
+            </div>
+            <div>
+                <dt>Última actividad</dt>
+                <dd>{{ chat_session.updated_at|date:"d/m/Y H:i" }}</dd>
+            </div>
+        </dl>
+    </div>
+    <footer class="panel-footer delete-footer">
+        <a href="{% url 'chat:session_detail' chat_session.pk %}" class="button button-secondary">Cancelar</a>
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <button type="submit" class="button button-danger">Eliminar definitivamente</button>
+        </form>
+    </footer>
+</section>
+{% endblock %}

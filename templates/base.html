@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TrustAI{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <header class="app-header">
+        <div class="brand">
+            <a href="{% if request.user.is_authenticated %}{% url 'chat:dashboard' %}{% else %}{% url 'pages:landing' %}{% endif %}">
+                <span class="brand-trust">TRUST</span><span class="brand-ai">AI</span>
+            </a>
+        </div>
+        <nav class="main-nav">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'chat:dashboard' %}">Panel</a>
+                <a href="{% url 'chat:session_list' %}">Conversaciones</a>
+                <a href="{% url 'chat:session_create' %}">Nuevo chat</a>
+                <a href="{% url 'downloads:list' %}">Software</a>
+                <a href="{% url 'accounts:profile' %}">Perfil</a>
+                <form method="post" action="{% url 'accounts:logout' %}" class="nav-logout">
+                    {% csrf_token %}
+                    <button type="submit" class="link-button">Salir</button>
+                </form>
+            {% else %}
+                <a href="{% url 'pages:landing' %}">Inicio</a>
+                <a href="{% url 'accounts:login' %}">Iniciar sesión</a>
+                <a href="{% url 'accounts:signup' %}" class="pill pill-highlight">Crear cuenta</a>
+            {% endif %}
+        </nav>
+        {% if request.user.is_authenticated %}
+            <div class="user-badge">
+                <span class="user-initials">{{ request.user.profile_initials }}</span>
+                <div class="user-meta">
+                    <strong>{{ request.user.display_name|default:request.user.email }}</strong>
+                    <small>{{ request.user.email }}</small>
+                </div>
+            </div>
+        {% endif %}
+    </header>
+
+    <div class="app-container">
+        {% if request.user.is_authenticated and recent_chat_sessions %}
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h2>Historial</h2>
+                    <ul class="chat-list">
+                        {% for chat_session in recent_chat_sessions %}
+                            <li>
+                                <a href="{% url 'chat:session_detail' chat_session.pk %}">
+                                    <span class="chat-title">{{ chat_session.title }}</span>
+                                    <span class="chat-meta">
+                                        {{ chat_session.get_model_choice_display }} · {{ chat_session.updated_at|date:"d/m H:i" }}
+                                    </span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <a class="button button-secondary" href="{% url 'chat:session_create' %}">Nuevo chat</a>
+                </div>
+            </aside>
+        {% endif %}
+
+        <main class="main-content">
+            {% include "partials/messages.html" %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+{% block extra_scripts %}{% endblock %}
+<script>
+    (function() {
+        if (window.renderTrustAIMarkdown) return;
+        window.renderTrustAIMarkdown = (source) => {
+            try {
+                const converter = new showdown.Converter({
+                    tables: true,
+                    simplifiedAutoLink: true,
+                    strikethrough: true,
+                    tasklists: true,
+                });
+                return converter.makeHtml(source || "");
+            } catch (error) {
+                return source || "";
+            }
+        };
+    })();
+</script>
+</body>
+</html>

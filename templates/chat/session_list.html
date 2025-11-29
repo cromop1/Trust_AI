@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de chats · TrustAI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <header class="panel-header">
+        <div>
+            <h1>Historial de conversaciones</h1>
+            <p>Revisa y reactiva cualquier conversación previa con TrustAI.</p>
+        </div>
+        <a href="{% url 'chat:session_create' %}" class="button button-primary">Nuevo chat</a>
+    </header>
+    {% if sessions %}
+        <ul class="session-list">
+            {% for session in sessions %}
+                <li class="session-row">
+                    <div>
+                        <h3>{{ session.title }}</h3>
+                        <p class="session-meta">
+                            {{ session.style_template.title }} · {{ session.get_model_choice_display }} · Actualizado {{ session.updated_at|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                    <div class="session-actions">
+                        <a href="{% url 'chat:session_detail' session.pk %}" class="button button-secondary">Abrir</a>
+                        <a href="{% url 'chat:session_delete' session.pk %}" class="button button-danger">Eliminar</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="empty-state">Todavía no hay conversaciones guardadas.</p>
+    {% endif %}
+</section>
+{% endblock %}

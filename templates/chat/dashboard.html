@@ -1,0 +1,273 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Panel principal · TrustAI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <header class="panel-header">
+        <div>
+            <h1>Hola, {{ request.user.display_name|default:request.user.email }}</h1>
+            <p>Gestiona tus conversaciones y explora nuevos estilos para TrustAI.</p>
+        </div>
+        <a href="{% url 'chat:session_create' %}" class="button button-primary">Nuevo chat</a>
+    </header>
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <h2>Total de chats</h2>
+            <span class="stat-value">{{ total_sessions }}</span>
+        </div>
+        <div class="stat-card">
+            <h2>Mensajes enviados</h2>
+            <span class="stat-value">{{ total_messages }}</span>
+        </div>
+        <div class="stat-card">
+            <h2>Tokens usados</h2>
+            <span class="stat-value">{{ total_tokens }}</span>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <header class="panel-header">
+        <h2>Tus últimas conversaciones</h2>
+        <a href="{% url 'chat:session_list' %}" class="button button-secondary">Ver todas</a>
+    </header>
+    {% if active_sessions %}
+        <div class="session-cards">
+            {% for session in active_sessions %}
+                <article class="session-card">
+                    <header class="session-card__header">
+                        <div class="session-card__heading">
+                            <h3 class="session-card__title">{{ session.title }}</h3>
+                        </div>
+                        <span class="session-card__model">
+                            <span class="session-card__model-trust">Trust</span>
+                            <span class="session-card__model-ai">AI</span>
+                        </span>
+                    </header>
+                    <p class="session-card__subtitle">{{ session.style_template.title }}</p>
+                    <p class="session-card__time">Actualizado {{ session.updated_at|timesince }} atrás</p>
+                    <div class="session-card__actions">
+                        <a href="{% url 'chat:session_detail' session.pk %}" class="button session-card__action session-card__action--open">Abrir</a>
+                        <a href="{% url 'chat:session_delete' session.pk %}" class="button session-card__action session-card__action--delete">Eliminar</a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">Aún no tienes chats. ¡Crea uno nuevo y comienza a conversar!</p>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <header class="panel-header">
+        <h2>Plantillas de estilo disponibles</h2>
+    </header>
+    <form method="get" class="style-search">
+        <div class="style-search__field">
+            <span class="style-search__icon">🔎</span>
+            <input
+                type="search"
+                name="q"
+                value="{{ style_query }}"
+                placeholder="Buscar plantillas por título"
+                aria-label="Buscar plantillas"
+                autocomplete="off"
+            >
+        </div>
+        <div class="style-search__actions">
+            <button type="submit" class="button button-secondary">Buscar</button>
+            {% if style_query %}
+                <a href="{% url 'chat:dashboard' %}" class="button button-ghost">Limpiar</a>
+            {% endif %}
+        </div>
+        <div class="style-search__summary">
+            {% if style_query %}
+                {{ style_results_count }} resultado{% if style_results_count != 1 %}s{% endif %} para “{{ style_query }}”.
+            {% else %}
+                {{ style_results_count }} plantilla{% if style_results_count != 1 %}s{% endif %} disponibles.
+            {% endif %}
+        </div>
+    </form>
+    <div class="style-grid">
+        {% for style in style_templates %}
+            <article class="style-card{% if style.pk in favorite_ids %} is-favorite{% endif %}">
+                <header class="style-option-header">
+                    <div>
+                        <h3>{{ style.title }}</h3>
+                    </div>
+                    <span class="style-card__score {% if style.reaction_score > 0 %}is-positive{% elif style.reaction_score < 0 %}is-negative{% else %}is-neutral{% endif %}" data-score-style-id="{{ style.pk }}">
+                        {% if style.reaction_score > 0 %}+{% endif %}{{ style.reaction_score }}
+                    </span>
+                </header>
+                <p>{{ style.description }}</p>
+                <div class="style-reactions" data-style-id="{{ style.pk }}">
+                    <span class="style-reactions__label">Feedback</span>
+                    <button
+                        type="button"
+                        class="reaction-toggle reaction-like{% if style.user_reaction == 1 %} is-active{% endif %}"
+                        data-style-id="{{ style.pk }}"
+                        data-reaction="1"
+                        data-action="{% url 'chat:toggle_reaction' style.pk %}"
+                        aria-pressed="{% if style.user_reaction == 1 %}true{% else %}false{% endif %}"
+                        aria-label="Me gusta"
+                    >
+                        <span class="reaction-icon">👍</span>
+                        <span class="reaction-count" data-count="like" data-style-id="{{ style.pk }}">{{ style.likes_count|default:0 }}</span>
+                    </button>
+                    <button
+                        type="button"
+                        class="reaction-toggle reaction-dislike{% if style.user_reaction == -1 %} is-active{% endif %}"
+                        data-style-id="{{ style.pk }}"
+                        data-reaction="-1"
+                        data-action="{% url 'chat:toggle_reaction' style.pk %}"
+                        aria-pressed="{% if style.user_reaction == -1 %}true{% else %}false{% endif %}"
+                        aria-label="No me gusta"
+                    >
+                        <span class="reaction-icon">👎</span>
+                        <span class="reaction-count" data-count="dislike" data-style-id="{{ style.pk }}">{{ style.dislikes_count|default:0 }}</span>
+                    </button>
+                </div>
+                <div class="style-card-actions">
+                    <a class="button button-secondary" href="{% url 'chat:session_create' %}?style={{ style.pk }}">Usar plantilla</a>
+                    <form method="post" action="{% url 'chat:toggle_favorite' style.pk %}" class="dashboard-favorite" data-style-id="{{ style.pk }}">
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="button button-favorite favorite-action {% if style.pk in favorite_ids %}is-favorite{% endif %}"
+                            aria-pressed="{% if style.pk in favorite_ids %}true{% else %}false{% endif %}"
+                            aria-label="{% if style.pk in favorite_ids %}Eliminar de favoritas{% else %}Añadir a favoritas{% endif %}"
+                        >
+                            {% if style.pk in favorite_ids %}Eliminar de favoritas{% else %}Añadir a favoritas{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <p class="empty-state">
+                {% if style_query %}
+                    No encontramos plantillas que coincidan con “{{ style_query }}”.
+                {% else %}
+                    No hay plantillas activas configuradas.
+                {% endif %}
+            </p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    (function () {
+        document.querySelectorAll('.dashboard-favorite').forEach((form) => {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const button = form.querySelector('.favorite-action');
+                if (!button) return;
+                const action = form.getAttribute('action');
+                const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+                const csrf = csrfInput ? csrfInput.value : null;
+                if (!action || !csrf) return;
+                button.disabled = true;
+                button.classList.add('is-processing');
+                try {
+                    const response = await fetch(action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrf,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error en la solicitud');
+                    }
+                    const data = await response.json();
+                    if (!data.success) {
+                        throw new Error('No se pudo actualizar la plantilla');
+                    }
+                    const favored = Boolean(data.favored);
+                    button.classList.toggle('is-favorite', favored);
+                    button.setAttribute('aria-pressed', favored ? 'true' : 'false');
+                    button.setAttribute(
+                        'aria-label',
+                        favored ? 'Eliminar de favoritas' : 'Añadir a favoritas'
+                    );
+                    button.textContent = favored ? 'Eliminar de favoritas' : 'Añadir a favoritas';
+                    const card = form.closest('.style-card');
+                    if (card) {
+                        card.classList.toggle('is-favorite', favored);
+                    }
+                } catch (error) {
+                    button.classList.add('has-error');
+                    setTimeout(() => button.classList.remove('has-error'), 1200);
+                } finally {
+                    button.disabled = false;
+                    button.classList.remove('is-processing');
+                }
+            });
+        });
+
+        document.querySelectorAll('.reaction-toggle').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const action = button.dataset.action;
+                const reaction = button.dataset.reaction;
+                const styleId = button.dataset.styleId;
+                const card = button.closest('.style-card');
+                const csrfInput = card ? card.querySelector('input[name="csrfmiddlewaretoken"]') : null;
+                const csrf = csrfInput ? csrfInput.value : null;
+                if (!action || !csrf || !styleId) return;
+                button.disabled = true;
+                button.classList.add('is-processing');
+                try {
+                    const response = await fetch(action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrf,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        },
+                        body: new URLSearchParams({ reaction }),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Error en la solicitud');
+                    }
+                    const data = await response.json();
+                    if (!data.success) {
+                        throw new Error('No se pudo registrar la reacción');
+                    }
+                    const container = document.querySelector(`.style-reactions[data-style-id="${styleId}"]`);
+                    if (container) {
+                        container.querySelectorAll('.reaction-toggle').forEach((btn) => {
+                            const value = parseInt(btn.dataset.reaction, 10);
+                            btn.classList.toggle('is-active', data.user_reaction === value);
+                        });
+                        const likeCount = container.querySelector('[data-count="like"]');
+                        const dislikeCount = container.querySelector('[data-count="dislike"]');
+                        if (likeCount) likeCount.textContent = data.likes;
+                        if (dislikeCount) dislikeCount.textContent = data.dislikes;
+                    }
+                    const scoreBadge = card ? card.querySelector(`[data-score-style-id="${styleId}"]`) : null;
+                    if (scoreBadge) {
+                        const score = data.score || 0;
+                        scoreBadge.textContent = `${score > 0 ? '+' : score < 0 ? '' : ''}${score}`;
+                        scoreBadge.classList.remove('is-positive', 'is-negative', 'is-neutral');
+                        if (score > 0) {
+                            scoreBadge.classList.add('is-positive');
+                        } else if (score < 0) {
+                            scoreBadge.classList.add('is-negative');
+                        } else {
+                            scoreBadge.classList.add('is-neutral');
+                        }
+                    }
+                } catch (error) {
+                    button.classList.add('has-error');
+                    setTimeout(() => button.classList.remove('has-error'), 1200);
+                } finally {
+                    button.disabled = false;
+                    button.classList.remove('is-processing');
+                }
+            });
+        });
+    })();
+</script>
+{% endblock %}

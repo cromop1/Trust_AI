@@ -1,0 +1,25 @@
+Guia rapida para levantar TrustAI y usar claves propias de DeepSeek:
+
+1. Crea el entorno virtual:
+   python -m venv .venv
+
+2. Activa el entorno (Windows):
+   .\.venv\Scripts\activate
+
+3. Instala dependencias:
+   pip install -r requirements.txt
+
+4. Aplica migraciones y prepara la base de datos:
+   python manage.py migrate
+
+5. (Opcional) Crea un superusuario para administrar:
+   python manage.py createsuperuser
+
+6. Lanza el servidor:
+   python manage.py runserver
+
+7. Registrate o inicia sesion y visita /cuenta/perfil/.
+   Ahi agrega tu "API key de DeepSeek"; es obligatoria para que el chat funcione.
+   Cada usuario guarda su propia clave, asi que no se necesita una global en settings.
+
+8. (Opcional) Ajusta tiempos de espera estableciendo la variable DEEPSEEK_TIMEOUT antes de ejecutar runserver.

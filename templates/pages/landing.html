@@ -1,0 +1,158 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Bienvenido a TrustAI{% endblock %}
+{% block body_class %}landing{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <span class="hero-label">Plataforma segura de IA conversacional</span>
+        <h1>
+            <span class="hero-trust">TRUST</span>AI acelera tus flujos de trabajo con modelos propios
+        </h1>
+        <p>
+            Diseñado para equipos que exigen precisión y control. Centraliza autenticación, estilos de conversación
+            y trazabilidad sobre los motores de TrustAI en una sola aplicación confiable.
+        </p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{% url 'accounts:signup' %}">Crear cuenta</a>
+            <a class="button button-ghost" href="{% url 'accounts:login' %}">Ya tengo acceso</a>
+        </div>
+        <ul class="hero-highlights">
+            <li>Autenticación con perfiles personalizados</li>
+            <li>Plantillas ocultas para controlar tono y comportamiento</li>
+            <li>Historial auditable y métricas de uso en tiempo real</li>
+        </ul>
+    </div>
+    <div class="hero-visual">
+        <div class="screen-mock">
+            <header>
+                <span class="mock-pill">Sesión activa</span>
+                <span class="mock-title">Panel · Conversaciones</span>
+            </header>
+            <div class="mock-chat">
+                <div class="mock-bubble mock-bubble-user">
+                    ¿Puedes ayudarme a sintetizar insights para la próxima presentación ejecutiva?
+                </div>
+                <div class="mock-bubble mock-bubble-ai">
+                    Claro. Priorizaré métricas críticas, puntos de fricción y próximos pasos accionables con tono estratégico.
+                </div>
+                <div class="mock-bubble mock-bubble-ai">
+                    También sugeriré visualizaciones y copy adaptados al estilo de liderazgo seleccionado.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="hero-metrics">
+    <article class="metric-card">
+        <span class="metric-number">4×</span>
+        <span class="metric-label">Velocidad promedio de respuesta frente a flujos manuales.</span>
+    </article>
+    <article class="metric-card">
+        <span class="metric-number">99.9%</span>
+        <span class="metric-label">Disponibilidad garantizada del panel y de las sesiones auditables.</span>
+    </article>
+    <article class="metric-card">
+        <span class="metric-number">24/7</span>
+        <span class="metric-label">Observabilidad de tokens y errores gracias al monitoreo integrado.</span>
+    </article>
+</section>
+
+<section class="features">
+    <article class="feature-card">
+        <h2>Seguridad y confianza</h2>
+        <p>Controla accesos con un modelo de usuario robusto, sesiones seguras y trazabilidad completa.</p>
+        <ul>
+            <li>Inicio de sesión por correo y sesiones JWT</li>
+            <li>Protección CSRF y saneamiento de mensajes</li>
+            <li>Gestión cifrada de las claves internas de TrustAI</li>
+        </ul>
+    </article>
+    <article class="feature-card">
+        <h2>Estilos inteligentes</h2>
+        <p>Define personalidades de IA con prompts ocultos y administra plantillas desde el panel.</p>
+        <ul>
+            <li>Plantillas activables desde la base de datos</li>
+            <li>Inyección silenciosa en cada conversación</li>
+            <li>Experiencias consistentes para tu equipo</li>
+        </ul>
+    </article>
+    <article class="feature-card">
+        <h2>Operación integral</h2>
+        <p>Centraliza chats, métricas y modelos TrustAI en un flujo intuitivo y responsive.</p>
+        <ul>
+            <li>Dashboard con métricas clave</li>
+            <li>Historial completo de sesiones</li>
+            <li>Integración con los motores conversacionales, coder y reasoner de TrustAI</li>
+        </ul>
+    </article>
+</section>
+
+<section class="trust-grid">
+    <article class="trust-card">
+        <h3>Infraestructura lista para producción</h3>
+        <p>Procesos seguros desde la autenticación hasta la interacción con TrustAI, alineados con mejores prácticas empresariales.</p>
+        <ul>
+            <li>Sesiones con tiempo de vida configurable y cierre remoto</li>
+            <li>Eventos de auditoría y métricas de tokens por equipo</li>
+            <li>Plantillas versionadas para gestionar cambios con control</li>
+        </ul>
+    </article>
+    <article class="trust-card">
+        <h3>Experiencias personalizadas</h3>
+        <p>Escala la inteligencia conversacional con estilos, modelos y paneles que se adaptan a cada iniciativa.</p>
+        <ul>
+            <li>Estilos temáticos que moldean tono y lenguaje</li>
+            <li>Selección guiada de modelos TrustAI según el caso</li>
+            <li>UI responsive optimizada para escritorio, tablet y móvil</li>
+        </ul>
+    </article>
+</section>
+
+<section class="cta-grid">
+    <article class="cta-panel">
+        <h3>Activa tu consola en minutos</h3>
+        <p>Obtén una instancia funcional con autenticación, plantillas y monitoreo listos para tus equipos internos.</p>
+        <div class="cta-actions">
+            <a class="button button-primary" href="{% url 'accounts:signup' %}">Crear cuenta</a>
+            <a class="button button-secondary" href="{% url 'chat:dashboard' %}">Ver demo</a>
+        </div>
+    </article>
+    <article class="cta-panel secondary">
+        <h3>¿Necesitas adaptarlo?</h3>
+        <p>Personaliza flujos, branding y despliegues con nuestra guía de integración y soporte especializado.</p>
+        <div class="cta-actions">
+            <a class="button button-ghost" href="#setup">Guía rápida</a>
+            <a class="button button-secondary" href="mailto:soporte@trustai.local">Habla con nosotros</a>
+        </div>
+    </article>
+</section>
+
+<section class="setup" id="setup">
+    <h2>Puesta en marcha express</h2>
+    <div class="setup-steps">
+        <article>
+            <span class="step-number">1</span>
+            <h3>Instala requisitos</h3>
+            <p>Ejecuta <code>pip install -r requirements.txt</code> para obtener Django, Pillow y Requests.</p>
+        </article>
+        <article>
+            <span class="step-number">2</span>
+            <h3>Configura la clave</h3>
+            <p>Define la variable <code>DEEPSEEK_API_KEY</code> en tu entorno o archivo <code>.env</code>.</p>
+        </article>
+        <article>
+            <span class="step-number">3</span>
+            <h3>Aplica migraciones</h3>
+            <p>Ejecuta <code>python manage.py migrate</code> y crea tu usuario administrador.</p>
+        </article>
+        <article>
+            <span class="step-number">4</span>
+            <h3>Lanza el servidor</h3>
+            <p>Arranca con <code>python manage.py runserver</code> y accede a <strong>/app/</strong> para usar el panel.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+﻿{% extends "base_auth.html" %}
+
+{% block title %}Crear cuenta · TrustAI{% endblock %}
+{% block auth_badge %}Regístrate{% endblock %}
+{% block auth_heading %}Crea tu cuenta{% endblock %}
+{% block subtitle %}Regístrate para acceder a la plataforma de chat con TrustAI{% endblock %}
+
+{% block auth_content %}
+<form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                <small class="form-help">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+                <div class="form-error">{{ field.errors.0 }}</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {% if form.non_field_errors %}
+        <div class="form-error">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+    <button type="submit" class="button button-primary">Crear cuenta</button>
+</form>
+{% endblock %}
+
+{% block auth_footer %}
+<p>¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión</a></p>
+{% endblock %}

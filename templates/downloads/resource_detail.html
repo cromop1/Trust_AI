@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ resource.title }} · Downloads · TrustAI{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'downloads:list' %}">Recursos</a>
+    <span>/</span>
+    <span>{{ resource.title }}</span>
+</nav>
+<section class="panel resource-detail">
+    <div class="resource-detail__media">
+        {% if resource.image %}
+            <img src="{{ resource.image.url }}" alt="{{ resource.title }}">
+        {% else %}
+            <div class="resource-card__placeholder resource-card__placeholder--detail">{{ resource.extension|default:"ZIP" }}</div>
+        {% endif %}
+    </div>
+    <div class="resource-detail__content">
+        <header>
+            <h1>{{ resource.title }}</h1>
+            <p class="resource-detail__meta">Actualizado el {{ resource.updated_at|date:"d/m/Y" }}</p>
+        </header>
+        <article class="resource-detail__description">
+            {{ resource.description|linebreaks }}
+        </article>
+        <div class="resource-detail__actions">
+            <a href="{{ resource.file.url }}" class="button button-primary" download>Descargar recurso</a>
+            <a href="{% url 'downloads:list' %}" class="button button-secondary">Volver al listado</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

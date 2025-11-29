@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil - TrustAI{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <header class="panel-header">
+        <div>
+            <h1>Mi perfil</h1>
+            <p>Actualiza tu informacion personal, avatar y la API key que usaran tus chats.</p>
+        </div>
+    </header>
+    <div class="panel-body">
+        <form method="post" enctype="multipart/form-data" class="form" novalidate>
+            {% csrf_token %}
+            <div class="profile-grid">
+                <div class="avatar-section">
+                    {% if request.user.avatar %}
+                        <img src="{{ request.user.avatar.url }}" alt="Avatar" class="avatar-preview">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ request.user.profile_initials }}</div>
+                    {% endif %}
+                    <label class="button button-secondary">
+                        Cambiar avatar
+                        {{ form.avatar }}
+                    </label>
+                </div>
+                <div class="profile-fields">
+                    <div class="form-group">
+                        <label for="{{ form.display_name.id_for_label }}">Nombre a mostrar</label>
+                        {{ form.display_name }}
+                        {% if form.display_name.errors %}
+                            <div class="form-error">{{ form.display_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.bio.id_for_label }}">Biografia</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                            <div class="form-error">{{ form.bio.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.deepseek_api_key.id_for_label }}">API key de DeepSeek</label>
+                        {{ form.deepseek_api_key }}
+                        {% if form.deepseek_api_key.errors %}
+                            <div class="form-error">{{ form.deepseek_api_key.errors.0 }}</div>
+                        {% endif %}
+                        {% if form.deepseek_api_key.help_text %}
+                            <small class="form-hint">{{ form.deepseek_api_key.help_text }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" class="button button-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}TrustAI{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="auth-body">
+    <div class="auth-shell">
+        <div class="auth-layout">
+            <section class="auth-visual">
+                <div class="auth-visual-inner">
+                    <a class="auth-logo" href="{% url 'pages:landing' %}">
+                        <img src="{% static 'images/trustai-logo.svg' %}" alt="Logo TrustAI">
+                    </a>
+                    <h1>Confianza profesional para tus experiencias de IA</h1>
+                    <p>
+                        Unifica autenticación, plantillas y métricas de TrustAI en una plataforma elegante
+                        preparada para escritorio y dispositivos móviles.
+                    </p>
+                    <ul class="auth-highlights">
+                        <li>Perfiles empresariales con auditoría completa</li>
+                        <li>Estilos ocultos que personalizan cada conversación</li>
+                        <li>Monitorización en tiempo real del consumo de tokens</li>
+                    </ul>
+                </div>
+                <div class="auth-visual-meta">
+                    <span class="meta-pill">Disponibilidad 24/7</span>
+                    <span class="meta-pill">Potenciado por TrustAI</span>
+                </div>
+            </section>
+            <main class="auth-panel">
+                <header class="auth-header">
+                    <span class="auth-badge">{% block auth_badge %}Acceso seguro{% endblock %}</span>
+                    <h2>{% block auth_heading %}Bienvenido de nuevo{% endblock %}</h2>
+                    <p class="auth-subtitle">{% block subtitle %}{% endblock %}</p>
+                </header>
+                {% include "partials/messages.html" %}
+                <div class="auth-content">
+                    {% block auth_content %}{% endblock %}
+                </div>
+                <footer class="auth-footer">
+                    {% block auth_footer %}{% endblock %}
+                </footer>
+            </main>
+        </div>
+    </div>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
