@@ -107,6 +107,150 @@ Trust AI es un proyecto educativo, seguro y no operativo.**
 
 
 
+## 🔸 Características clave
+- **Autenticación personalizada:** inicio de sesión por correo electrónico, registro con perfil completo, edición de avatar y datos biográficos.
+- **Panel inteligente:** métricas rápidas, historial anclado, acceso a plantillas y navegación fluida hacia nuevas sesiones.
+- **Gestor de chats:** creación guiada en pasos con selección de estilo, modelo DeepSeek (`deepseek-chat`, `deepseek-coder`, `deepseek-reasoner`) y título.
+- **Plantillas de estilo ocultas:** prompts de sistema almacenados en BD, inyectados automáticamente sin exponerlos al usuario final.
+- **Integración DeepSeek:** cliente robusto con manejo de errores, trazabilidad de tokens y respuesta asincrónica en la interfaz.
+- **UI responsive:** landing pública, vistas internas y formularios tematizados en rojo, negro y gris.
+
+
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+## 📑 Requisitos
+- Python 3.11 (o compatible con Django 5.2.7)
+- Dependencias del proyecto (instalables con pip):
+  ```bash
+  pip install -r requirements.txt
+  ```
+  - `Django==5.2.7`
+  - `requests` (cliente HTTP para la API)
+  - `Pillow` (manejo de avatares en `ImageField`)
+ 
+
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+## ⚙️ Configuración rápida
+1. **Clonar y crear entorno:**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate  # Windows
+   source .venv/bin/activate  # macOS/Linux
+   pip install -r requirements.txt
+   ```
+
+
+
+
+
+2. **Variables de entorno:**
+   - `DEEPSEEK_API_KEY`: clave privada del panel de DeepSeek.
+   - Opcional: `CSRF_TRUSTED_ORIGINS` separado por comas para exponer dominios adicionales en producción.
+
+   En PowerShell:
+   ```powershell
+   setx DEEPSEEK_API_KEY "tu_clave_super_secreta"
+   ```
+
+
+
+
+
+
+3. **Migraciones y datos base:**
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser  # opcional para administrar estilos desde /admin/
+   ```
+   Las plantillas de estilo iniciales se cargan automáticamente mediante la migración `chat/0002_default_styles.py`.
+
+
+
+
+
+
+
+
+4. **Levantar el servidor:**
+   ```bash
+   python manage.py runserver
+   ```
+   - Landing pública: `http://127.0.0.1:8000/`
+   - Panel autenticado: `http://127.0.0.1:8000/app/`
+
+
+
+
+
+
+
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+## 🧱 Estructura principal
+- `accounts/`: modelo de usuario (`AUTH_USER_MODEL`), formularios, vistas y autenticación por email.
+- `chat/`: modelos de plantillas, sesiones y mensajes; vistas para dashboard, historial y AJAX; cliente DeepSeek.
+- `pages/`: landing page pública con branding **TRUST** en rojo.
+- `templates/` y `static/`: layouts, componentes y estilos en paleta rojo/negro/gris.
+
+
+
+
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+## 💡 Comprobaciones recomendadas
+- Verificar dependencias: `pip install -r requirements.txt`
+- Diagnóstico de Django: `python manage.py check`
+- Pruebas de flujos:
+  1. Registro de usuario (landing → “Crear cuenta”).
+  2. Inicio de sesión y navegación al dashboard en `/app/`.
+  3. Creación de chat con los tres pasos y envío de mensajes (requiere `DEEPSEEK_API_KEY` válido y conectividad).
+  4. Edición de perfil y recarga de avatar para validar `Pillow`.
+
+
+
+
+
+<p align="center">
+  <img src="https://i.imgur.com/zDTIHyR.png" width="100%" alt="Banner Proyecto Integrador 2025">
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -133,4 +277,5 @@ No debe modificarse para causar daño real.”
 👉 **[github.com/cromop1](https://github.com/cromop1)**
 
 Tu apoyo ayuda a que pueda seguir desarrollando herramientas educativas, simulaciones seguras y contenido para la comunidad.
+
 
